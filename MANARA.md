@@ -53,7 +53,12 @@ Never commit signing keys, keystores, `google-services.json`, API keys or tokens
 ## Build
 
 ```sh
+# One-time: upstream's mock Firebase config (gitignored; the minimal flavour still needs it to build)
+for m in app wear automotive; do cp .github/mock-google-services.json $m/google-services.json; done
+
 ./gradlew :app:assembleMinimalDebug   # upstream minimal flavour (baseline)
 ```
 
-Needs JDK 21 (Android Studio's bundled JBR works) and the Android SDK.
+Needs JDK 21 (Android Studio's bundled JBR works) and the Android SDK. A first build takes about 15 minutes; output goes to `app/build/outputs/apk/minimal/debug/`.
+
+If the Gradle wrapper times out downloading the distribution on a slow link, download the zip from `distributionUrl` in `gradle/wrapper/gradle-wrapper.properties` into the wrapper's `dists/` folder and check it against `distributionSha256Sum`. Don't change upstream's wrapper settings.
