@@ -1,0 +1,30 @@
+# Manara: report whether a newer upstream release exists than our base.
+# Stub: it only reports. Automated rebasing comes later (see MANARA.md).
+name: Rebase check
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rebase-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Compare base tag with latest upstream release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          base=$(git describe --tags --abbrev=0 origin/develop)
+          latest=$(gh release view -R home-assistant/android --json tagName --jq .tagName)
+          echo "Base: $base, latest upstream release: $latest" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$base" != "$latest" ]; then
+            echo "::notice::Upstream $latest is available; rebase develop per MANARA.md."
+          fi
